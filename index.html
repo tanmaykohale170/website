@@ -1,0 +1,854 @@
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+HTML = r"""
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TGPCET - Machine Learning Practicals</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #17212b;
+    transition: 0.3s;
+}
+
+/* HEADER */
+
+header {
+    background: linear-gradient(135deg, #092f57, #0b65c2);
+    color: white;
+    text-align: center;
+    padding: 35px 15px;
+}
+
+header h1 {
+    margin: 10px 0;
+    font-size: 34px;
+}
+
+header p {
+    margin: 5px;
+}
+
+/* NAVIGATION */
+
+nav {
+    background: white;
+    padding: 12px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 10px #0002;
+}
+
+nav a {
+    display: inline-block;
+    margin: 4px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    background: #e9f1fa;
+    color: #123;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+nav a:hover {
+    background: #0b65c2;
+    color: white;
+}
+
+/* MAIN */
+
+.container {
+    width: 94%;
+    max-width: 1100px;
+    margin: 25px auto;
+}
+
+/* PROFILE */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.profile {
+    background: white;
+    border-radius: 15px;
+    padding: 22px;
+    box-shadow: 0 4px 16px #0001;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.profile h2 {
+    margin: 0 0 8px;
+}
+
+.profile p {
+    margin: 7px 0;
+    color: #58697b;
+}
+
+.profile a {
+    color: #0b65c2;
+    font-weight: bold;
+}
+
+.hod-img {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #0b65c2;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #0b65c2;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* CARDS */
+
+.card {
+    background: white;
+    margin: 22px 0;
+    padding: 24px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px #0001;
+}
+
+.card h2 {
+    color: #0b65c2;
+}
+
+.aim {
+    background: #eef5fc;
+    border-left: 5px solid #0b65c2;
+    padding: 14px;
+    border-radius: 6px;
+    margin: 15px 0;
+}
+
+/* OUTPUT */
+
+pre {
+    background: #10161d;
+    color: #e8edf2;
+    padding: 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.5;
+}
+
+/* BUTTON */
+
+button {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    border: none;
+    border-radius: 25px;
+    padding: 13px 18px;
+    background: #17212b;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 20;
+}
+
+button:hover {
+    background: #0b65c2;
+}
+
+/* FOOTER */
+
+footer {
+    background: #102a43;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    margin-top: 40px;
+}
+
+/* DARK MODE */
+
+body.dark {
+    background: #0e141b;
+    color: #edf2f7;
+}
+
+body.dark nav {
+    background: #18222d;
+}
+
+body.dark nav a {
+    background: #293746;
+    color: white;
+}
+
+body.dark .profile,
+body.dark .card {
+    background: #18222d;
+    color: #edf2f7;
+}
+
+body.dark .profile p {
+    color: #c5d0da;
+}
+
+body.dark .aim {
+    background: #24313e;
+}
+
+body.dark footer {
+    background: #070d13;
+}
+
+/* MOBILE */
+
+@media(max-width:750px) {
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: 25px;
+    }
+
+    .card {
+        padding: 17px;
+    }
+
+    pre {
+        font-size: 12px;
+    }
+}
+
+</style>
+
+</head>
+
+<body id="page">
+
+<!-- HEADER -->
+
+<header>
+
+<h2>TGPCET • AIML</h2>
+
+<h1>Machine Learning Practicals</h1>
+
+<p>
+Practical No. 1 to 9 — Program & Output
+</p>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav>
+
+<a href="#student">Student</a>
+
+<a href="#faculty">Faculty</a>
+
+<a href="#p1">P1</a>
+<a href="#p2">P2</a>
+<a href="#p3">P3</a>
+<a href="#p4">P4</a>
+<a href="#p5">P5</a>
+<a href="#p6">P6</a>
+<a href="#p7">P7</a>
+<a href="#p8">P8</a>
+<a href="#p9">P9</a>
+
+</nav>
+
+
+<div class="container">
+
+
+<!-- STUDENT -->
+
+<section class="profile-grid" id="student">
+
+<div class="profile">
+
+<div class="avatar">
+TNK
+</div>
+
+<div>
+
+<h2>Student Details</h2>
+
+<p>
+<b>Name:</b>
+Tanmay N. Kohale
+</p>
+
+<p>
+<b>Roll Number:</b>
+26510113
+</p>
+
+<p>
+<b>Department:</b>
+Artificial Intelligence & Machine Learning
+</p>
+
+<p>
+<b>College:</b>
+TGPCET
+</p>
+
+</div>
+
+</div>
+
+
+<!-- HOD -->
+
+<div class="profile" id="faculty">
+
+<img
+class="hod-img"
+src="https://www.tgpcet.edu.in/assets/img/Faculty/Suraj_Mahajan.jpg"
+alt="Prof. Suraj Mahajan"
+>
+
+<div>
+
+<h2>
+Prof. Suraj Mahajan
+</h2>
+
+<p>
+<b>Head of Department</b>
+</p>
+
+<p>
+Artificial Intelligence & Machine Learning
+</p>
+
+<a
+href="https://www.tgpcet.edu.in/AIML.php"
+target="_blank"
+>
+Official AIML Profile
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- COORDINATOR -->
+
+<section class="profile" style="margin-top:20px">
+
+<div class="avatar">
+PK
+</div>
+
+<div>
+
+<h2>
+Prof. Praney sir
+</h2>
+
+<p>
+<b>AIML Coordinator</b>
+</p>
+
+<p>
+Research & Development Board — Coordinator, AIML
+</p>
+
+</div>
+
+</section>
+
+
+<!-- PRACTICAL 1 -->
+
+<section class="card" id="p1">
+
+<h2>
+Practical 1 — Supervised, Unsupervised & Semi-Supervised Learning
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement and compare Supervised,
+Unsupervised and Semi-Supervised
+learning using Python.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Supervised Learning Accuracy: 1.0
+
+Unsupervised Learning Clusters:
+[0 1 2 0 1 2 ...]
+
+Semi-Supervised Learning Completed
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 2 -->
+
+<section class="card" id="p2">
+
+<h2>
+Practical 2 — Candidate Elimination Algorithm
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement the Candidate Elimination
+Algorithm and visualize the Version
+Space boundaries.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Initial Specific Boundary:
+
+['Sunny' 'Warm' 'Normal' 'Strong' 'Warm' 'Same']
+
+
+Final Specific Boundary:
+
+['Sunny' 'Warm' '?' 'Strong' '?' 'Same']
+
+
+Final General Boundary:
+
+['Sunny', '?', '?', '?', '?', '?']
+
+['?', 'Warm', '?', '?', '?', '?']
+
+['?', '?', '?', '?', '?', 'Same']
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 3 -->
+
+<section class="card" id="p3">
+
+<h2>
+Practical 3 — Supervised Machine Learning
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement a supervised machine learning
+model and measure its performance.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Accuracy of the model: 1.0
+
+
+Confusion Matrix:
+
+[[19 0 0]
+ [ 0 13 0]
+ [ 0 0 13]]
+
+
+Classification Report:
+
+accuracy 1.00
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 4 -->
+
+<section class="card" id="p4">
+
+<h2>
+Practical 4 — Linear & Polynomial Regression
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Build Linear and Polynomial Regression
+models and analyze prediction error.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Linear Regression Results
+
+MAE : 0.6551724137931076
+
+MSE : 0.6792508917954879
+
+RMSE: 0.824166786394288
+
+
+Polynomial Regression Results
+
+MAE : 0.6551724137931059
+
+MSE : 0.43469297725638223
+
+RMSE: 0.6593125034885826
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 5 -->
+
+<section class="card" id="p5">
+
+<h2>
+Practical 5 — K-Nearest Neighbors (KNN)
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement KNN Classification with
+multiple K values and compare performance.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+K = 1
+Accuracy: 1.0
+
+
+K = 3
+Accuracy: 1.0
+
+
+K = 5
+Accuracy: 1.0
+
+
+K = 7
+Accuracy: 1.0
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 6 -->
+
+<section class="card" id="p6">
+
+<h2>
+Practical 6 — VC Dimension & Sample Complexity
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Compute VC Dimension and Sample
+Complexity for basic hypothesis classes.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Line Hypothesis
+
+VC Dimension = 3
+
+Sample Complexity = 99.03
+
+
+Interval Hypothesis
+
+VC Dimension = 2
+
+Sample Complexity = 76.01
+
+
+Circle Hypothesis
+
+VC Dimension = 3
+
+Sample Complexity = 99.03
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 7 -->
+
+<section class="card" id="p7">
+
+<h2>
+Practical 7 — RBF Network
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement a Radial Basis Function
+Network using Gaussian radial kernels.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Accuracy of RBF Network: 1.0
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 8 -->
+
+<section class="card" id="p8">
+
+<h2>
+Practical 8 — Single-Layer Perceptron
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement a Single-Layer Perceptron
+Learning algorithm.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Final Weights:
+
+[0.2 0.1]
+
+
+Final Bias:
+
+-0.20000000000000004
+
+
+Testing Perceptron
+
+[0 0] -> 0
+
+[0 1] -> 0
+
+[1 0] -> 0
+
+[1 1] -> 1
+
+</pre>
+
+</section>
+
+
+<!-- PRACTICAL 9 -->
+
+<section class="card" id="p9">
+
+<h2>
+Practical 9 — Multi-Layer Perceptron (MLP)
+</h2>
+
+<div class="aim">
+
+<b>Aim:</b>
+
+Implement a Multi-Layer Perceptron
+trained using Backpropagation.
+
+</div>
+
+<h3>Output</h3>
+
+<pre>
+
+Predicted Output after Training:
+
+
+[[0.01617295]
+
+ [0.98334289]
+
+ [0.98758845]
+
+ [0.01468905]]
+
+</pre>
+
+</section>
+
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+<p>
+<b>TGPCET • AIML • Machine Learning Practicals</b>
+</p>
+
+<p>
+Student: Tanmay N. Kohale
+|
+Roll No.: 26510113
+</p>
+
+</footer>
+
+
+<!-- DARK MODE -->
+
+<button onclick="toggleDarkMode()">
+
+🌙 Dark Mode
+
+</button>
+
+
+<script>
+
+function toggleDarkMode() {
+
+    document
+    .getElementById("page")
+    .classList
+    .toggle("dark");
+
+}
+
+</script>
+
+
+</body>
+
+</html>
+"""
+
+
+class Website(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+
+        self.send_response(200)
+
+        self.send_header(
+            "Content-Type",
+            "text/html; charset=utf-8"
+        )
+
+        self.end_headers()
+
+        self.wfile.write(
+            HTML.encode("utf-8")
+        )
+
+    def log_message(self, format, *args):
+        pass
+
+
+server = HTTPServer(
+    ("127.0.0.1", 8000),
+    Website
+)
+
+print("---------------------------------------")
+print("TGPCET Machine Learning Website")
+print("---------------------------------------")
+print("Student      : Tanmay N. Kohale")
+print("Roll Number  : 26510113")
+print("Department   : AIML")
+print("---------------------------------------")
+print("Website URL:")
+print("http://127.0.0.1:8000")
+print("---------------------------------------")
+print("Press Ctrl+C to stop the website.")
+
+server.serve_forever()
